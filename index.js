@@ -3,8 +3,33 @@ const mongoose = require("mongoose");
 
 // App de espress
 const app = express();
-//Middleware para parsear la BD.
+
+//Middleware para parsear la BD. a Json (Primer Middleware)
 app.use(express.json());
+
+/* 
+ * Middlewares */
+/*  * 1 - Hacer un middleware para toda la aplicacion que imprima en consola el metodo */
+  /* * 2 - Un middleware para el endpoint de obtener un koder donde imprima en consola 'Obteniendo koder ......'  */
+  app.use((request, response, next) => {
+    console.log("Requesrt en Body", request.body);
+    console.log("next", next)
+    next()
+  })
+ 
+ 
+ 
+ /* * 3 - Hacer un middleware para el endpoint de crear Koder donde si no nos manda informacion(datos, json)  */
+ /* * REGRESAR "No estas mandado objetos" ->>> para que ni entre al endpoint de crear Koder */
+
+
+
+  /**
+   * Middlewares
+   * - Nos sirve para poder realizar codigo antes de los endpoints.
+   * - Tienen acceso a la request, a la response.
+   * - Tienen una palabra llamada next() -> indica que puedes continuar
+   */
 
 //URL de Base de Datos
 const databaseURL = "mongodb+srv://LuisDOlvera:Mongo01@cluster0.ii34zsj.mongodb.net/Kodemia"
@@ -77,7 +102,7 @@ app.get("/koders", async (req, res)=> {
 
 //Crear un Koder
 app.post("/koders", async (req, res) => {
-    console.log("body --->", req.body)
+    console.log("body en el empoint de Post --->", req.body)
     try {
         const koder = await Koder.create(req.body) //Modelo para crear Koder con lo que está en el Body
         console.log("koder ---->", koder);
@@ -161,16 +186,16 @@ app.delete("/koders/:id", async (req, res) => {
 // Ruta -> /koders/:id
 //método -> patch
 
-app.patch("/koders/:id", async (req, res) => {
-    const { id } = req.params
+app.patch("/koders/:id", async (req, res) => {    
+    //Otra forma para el parámetro de Options
+    /* const options = {
+        returnDocument: "after"
+    }; */
+    const { body, params } = req
     try{
-        const updatedKoder = await Koder.findByIdAndUpdate(id, {
-			"name": "Damian",
-			"age": 22,
-			"module": "AWS",
-        });
+        const updatedKoder = await Koder.findByIdAndUpdate(params.id, body, { returnDocument : "after" });
         console.log(updatedKoder);
-        res.status(201);
+        res.status(200);
         res.json({
             success: true,
             data: updatedKoder,
