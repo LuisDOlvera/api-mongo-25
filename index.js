@@ -7,15 +7,28 @@ const app = express();
 //Middleware para parsear la BD. a Json (Primer Middleware)
 app.use(express.json());
 
+// Segundo Middleware
+app.use((request, response, next) => {
+    console.log("Primer Middleware");
+    next();
+})
+app.use((request, response, next) => {
+    console.log("Segundo Middlewate");
+    next();
+})
+// Middleware Encapsulado para un Endpoint en específico (Para Rutas Publicas o Privadas)
+//Se guarda en una constante para ocuparse después.
+const middlewareEncapsulado = (req, res, next) => {
+    console.log("Middleware encapsulado para un endpoint en específico");
+    next();
+}
+ 
+
+
 /* 
  * Middlewares */
 /*  * 1 - Hacer un middleware para toda la aplicacion que imprima en consola el metodo */
   /* * 2 - Un middleware para el endpoint de obtener un koder donde imprima en consola 'Obteniendo koder ......'  */
-  app.use((request, response, next) => {
-    console.log("Requesrt en Body", request.body);
-    console.log("next", next)
-    next()
-  })
  
  
  
@@ -101,8 +114,11 @@ app.get("/koders", async (req, res)=> {
 })
 
 //Crear un Koder
-app.post("/koders", async (req, res) => {
-    console.log("body en el empoint de Post --->", req.body)
+//Parámetros con normalidad ---> ruta, callback
+//Si queremos un Middleware para ese endpoint en específicio, se pone como 2do parámetro.
+//Parámetros con Middlewares ---> ruta, middleware, callback
+app.post("/koders", middlewareEncapsulado, async (req, res) => {
+    console.log("body en el empoint de Post --->", req.body);
     try {
         const koder = await Koder.create(req.body) //Modelo para crear Koder con lo que está en el Body
         console.log("koder ---->", koder);
